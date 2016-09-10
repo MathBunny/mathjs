@@ -203,6 +203,18 @@ describe('parse', function() {
       assert.deepEqual(parseAndEval('2 + 3 # - 4\n6-2'), new ResultSet([5, 4]));
     });
 
+    it('should fill in the property comment of a Node', function() {
+      assert.equal(parse('2 + 3').comment, '');
+
+      assert.equal(parse('2 + 3 # hello').comment, '# hello');
+      assert.equal(parse('   # hi').comment, '# hi');
+
+      var blockNode = parse('2 # foo\n3   # bar');
+      assert.equal(blockNode.blocks.length, 2);
+      assert.equal(blockNode.blocks[0].node.comment, '# foo');
+      assert.equal(blockNode.blocks[1].node.comment, '# bar');
+    });
+
   });
 
   describe('number', function () {
@@ -214,7 +226,6 @@ describe('parse', function() {
       assert.equal(parseAndEval('003.2'), 3.2);
       assert.equal(parseAndEval('003.200'), 3.2);
       assert.equal(parseAndEval('.2'), 0.2);
-      assert.equal(parseAndEval('2.'), 2);
       assert.equal(parseAndEval('3e2'), 300);
       assert.equal(parseAndEval('300e2'), 30000);
       assert.equal(parseAndEval('300e+2'), 30000);
@@ -228,7 +239,8 @@ describe('parse', function() {
     });
 
     it('should throw an error with invalid numbers', function() {
-      assert.throws(function () {parseAndEval('.'); }, SyntaxError);
+      assert.throws(function () {parseAndEval('.'); }, /Value expected/);
+      assert.throws(function () {parseAndEval('4.'); }, /Unexpected operator ./);
       assert.throws(function () {parseAndEval('3.2.2'); }, SyntaxError);
       assert.throws(function () {parseAndEval('3.2e2.2'); }, SyntaxError);
       
@@ -996,6 +1008,7 @@ describe('parse', function() {
 
     it('should parse dotDivide ./', function() {
       assert.equal(parseAndEval('4./2'), 2);
+      assert.deepEqual(parseAndEval('4./[2,4]'), math.matrix([2,1]));
       assert.equal(parseAndEval('4 ./ 2'), 2);
       assert.equal(parseAndEval('8 ./ 2 / 2'), 2);
 
@@ -1004,8 +1017,8 @@ describe('parse', function() {
 
     it('should parse dotMultiply .*', function() {
       approx.deepEqual(parseAndEval('2.*3'), 6);
+      approx.deepEqual(parseAndEval('2e3.*3'), 6e3);
       approx.deepEqual(parseAndEval('2 .* 3'), 6);
-      approx.deepEqual(parseAndEval('2. * 3'), 6);
       approx.deepEqual(parseAndEval('4 .* 2'), 8);
       approx.deepEqual(parseAndEval('8 .* 2 .* 2'), 32);
       assert.deepEqual(parseAndEval('a=3; a.*4'), new ResultSet([12]));
@@ -1016,7 +1029,6 @@ describe('parse', function() {
     it('should parse dotPower .^', function() {
       approx.deepEqual(parseAndEval('2.^3'), 8);
       approx.deepEqual(parseAndEval('2 .^ 3'), 8);
-      assert.deepEqual(parseAndEval('2. ^ 3'), 8);
       approx.deepEqual(parseAndEval('-2.^2'), -4);  // -(2^2)
       approx.deepEqual(parseAndEval('2.^3.^4'), 2.41785163922926e+24); // 2^(3^4)
 

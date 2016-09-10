@@ -1,6 +1,28 @@
 # History
 
 
+## 2016-09-07, version 3.5.0
+
+- Comments of expressions are are now stored in the parsed nodes. See #690.
+- Fixed function `print` not accepting an Object with formatting options as
+  third parameter Thanks @ThomasBrierley.
+- Fixed #707: The expression parser no longer accepts numbers ending with a dot
+  like `2.`.
+
+
+## 2016-08-08, version 3.4.1
+
+- Fixed broken bundle files (`dist/math.js`, `dist/math.min.js`).
+- Fixed some layout issues in the function reference docs.
+
+
+## 2016-08-07, version 3.4.0
+
+- Implemented support for custom units using `createUnit`. Thanks @ericman314.
+- Implemented function `splitUnits`. Thanks @ericman314.
+- Implemented function `isPrime`. Thanks @MathBunny.
+
+
 ## 2016-07-05, version 3.3.0
 
 - Implemented function `isNaN`.
